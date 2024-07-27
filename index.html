@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="vendor\materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+</head>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        display: flex;
+        /* Center the container horizontally */
+        justify-content: center;
+    }
+
+    .center-column {
+        text-align: center;
+        /* Center elements within the container */
+    }
+
+    #question {
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 30px;
+    }
+
+    #choices {
+        display: flex;
+        flex-wrap: wrap;
+        /* Wrap choices if needed */
+        margin-bottom: 10px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #choices button {
+        background-color: rgb(220, 217, 217);
+        /* Default button color */
+        color: black;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        /* Indicate clickable cursor */
+        margin: 5px;
+        /* Add space between choices */
+        transition: background-color 0.3s;
+        /* Add smooth color transition on hover */
+    }
+
+    #choices button:hover {
+        background-color: darkgray;
+        /* Button color on hover */
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        /* Add subtle shadow on hover */
+    }
+
+    #choices button:active {
+        background-color: rgb(133, 133, 133);
+        color: rgb(206, 206, 206);
+    }
+
+    #submit-btn {
+        background-color: black;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+
+    #submit-btn:hover {
+        background-color: rgb(57, 57, 57);
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    #feedback.correct {
+        color: black;
+        /* Default green for correct answer */
+        margin-top: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 30px;
+    }
+
+    #feedback.incorrect {
+        color: black;
+        /* Red for incorrect answer */
+        margin: 20px 0;
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 30px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+
+    }
+
+    #prev-question {
+        background-color: black;
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+
+    #next-question {
+        background-color: black;
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table th {
+        background-color: rgb(40, 40, 40);
+        color: white;
+        padding: 10px;
+    }
+
+    table td {
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    #quiz-container {
+        width: 100%;
+        border: 1px solid rgb(70, 70, 70);
+        padding: 20px;
+        border-radius: 5px;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+    }
+
+    .small {
+        font-size: 13px;
+        color: gray;
+
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        var questions = [
+            {
+                problem: "What is an example of environmental effects on phenotypes?",
+                choices: "Eating habits/body stature/Emotion types/Endophenotype/Body surface area",
+                answer: "Eating habits",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is the major output of the limbic system in the brain?",
+                choices: "Vision/Emotion/Concentration/Motor balance/Higher executive function",
+                answer: "Emotion",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is the name of a group of neurons which give rise results as behavior?",
+                choices: "Neuralgia/Neuropathy/Neuritis multiplex/Neuronal network/Neuroanatomical correlation",
+                answer: "Neuronal network",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "According to Freud’s psychosexual development, at which stage does gender identity occur?",
+                choices: "oral stage/Anal stage/Phallic stage/Latency stage/Genital stage",
+                answer: "Phallic stage",
+                select: "",
+                state: false
+            },
+            {
+                problem: "The teacher gives students candy every week if they do their homework. What type of Reinforcement is this?",
+                choices: "Fixed ratio /Continuous/Variable interval/Variable ratio/Fixed interval",
+                answer: "Fixed interval",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which part of structure of mind is operated if you feel guilty about lying to someone?",
+                choices: "Id/Ego/Superego/Conscious/Unconscious",
+                answer: "Superego",
+                select: "",
+                state: false
+            },
+            {
+                problem: "A boy was bitten by a dog once and feared it. What is the concept of the situation?",
+                choices: "Shaping/Modelling/Imprinting/Classical conditioning/Operant conditioning",
+                answer: "Classical conditioning",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is the consequence of deficient maternal care?",
+                choices: "Obesity/Psychological dwarfism/Stranger anxiety disorder/Autism spectrum disorder/Borderline Personality Disorder",
+                answer: "Psychological dwarfism",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which domain of APGAR evaluation in newborn?",
+                choices: "Reflex/Sensory/Body weight/Body pressure/Body temperature",
+                answer: "Reflex",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which period does the person start understanding that “the water can turn into the ice”?",
+                choices: "Toddler/Early childhood/Middle childhood/Late childhood/Adolescent",
+                answer: "Middle childhood",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which is the pattern of growth in infancy?",
+                choices: "Sagittal/Coronal/Dorsoproximal/Cephalocaudal/Anteroposterior",
+                answer: "Cephalocaudal",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is the expected cognitive development in late childhood?",
+                choices: "centration/circular reaction/animism/seriation/symbolic play",
+                answer: "seriation",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is the expected cognitive development of early childhood?",
+                choices: "Delusion/Transitivity/Classification/Egocentrism/Conservation",
+                answer: "Egocentrism",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which is a male hormone?",
+                choices: "Estradiol/Prolactin/Oxytocin/Testosterone/Somatostatin",
+                answer: "Testosterone",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What characteristic occurs first in female puberty?",
+                choices: "Menarche/Ovulation/Breast enlargement/Pubic hair growth/Hip widening",
+                answer: "Breast enlargement",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is expected in adolescents?",
+                choices: "Concrete thinking/Symbolic thought/Object permanence/Abstract thinking/Transitive tunnel",
+                answer: "Abstract thinking",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is the point of concern in adolescence?",
+                choices: "Intimacy/Integrity/Industry/Generativity/Independency",
+                answer: "Independency",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Adolescents follow rules and comply with the law, which Kohlberg’s level achieved?",
+                choices: "Preconventional/Conventional/Post conventional/Preoperational/Operational",
+                answer: "Conventional",
+                select: "",
+                state: false
+            },
+
+
+            {
+                problem: "What is a strategy that could increase marital satisfaction when middle-aged couple entering “Empty-nest syndrome”?",
+                choices: "Increase in the quality time spending with each other/Provide support for the younger generation/Create their own leisure independently/Promote woman predominant role/Continue living with their child(ren)",
+                answer: "Increase in the quality time spending with each other",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is the nature of middle adulthood?",
+                choices: "Increasing intimacy/At peak of physical strength/Less responsibility to maintain relationship/Golden age to find work identity/Seeking to transmit something meaningful to the next generation",
+                answer: "Seeking to transmit something meaningful to the next generation",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is correct about “health and disease” in middle adulthood compared with early adulthood?",
+                choices: "Obesity rate is lower than in middle adulthood/Substance use is higher than in middle adulthood/At peak of physical strength/More exercise than in middle adulthood/More NCDs than early adulthood",
+                answer: "More NCDs than early adulthood",
+                select: "",
+                state: false
+            },
+            {
+                problem: "A 15-year-old boy was hospitalized due to alcohol intoxication and aggressive behaviors. He admitted that he experiences depressive mood and anxiety. He stole money and lied to his classmate. In this case, which is a form of internalizing problematic behavior?",
+                choices: "Lying/Anxiety/Stealing/Aggressive behavior/Alcohol intoxication",
+                answer: "Anxiety",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which one should be emphasized for prevent risks associated with sexual behaviors in teenager?",
+                choices: "Self-regulation/Religious/Pubertal hormone/Early sex activities/Worst case scenario",
+                answer: "Self-regulation",
+                select: "",
+                state: false
+            },
+
+
+            {
+                problem: "Regarding adolescent and internet use, which is the risk factor of negative consequences of internet use?",
+                choices: "High use/Self-control/Online gaming/Time limitation/Parental monitoring",
+                answer: "High use",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is true about first year motor development?",
+                choices: "If infant's behavior is followed by a rewarding stimulus, the behavior is likely to recur./If parents place babies on their backs to sleep, most baby crawl./When an object becomes similar, attention becomes longer./Breast feeding is linked to delayed development./The increase in size during first year cannot promote early motor milestones achievement.",
+                answer: "If infant's behavior is followed by a rewarding stimulus, the behavior is likely to recur.",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What can be done to reduce separation anxiety in an 8-month-old infant?",
+                choices: "Role-playing/Leaving him alone/Giving him a doll/Playing Peek-A-Boo/Always staying in his sight",
+                answer: "Playing Peek-A-Boo",
+                select: "",
+                state: false
+            },
+            {
+                problem: "If you hear a child say “dog bark” then you say “Oh, you heard a dog barks!”. What strategy is used?",
+                choices: "Rebelling/Recasting/Repeating/Expanding/Rephrasing",
+                answer: "Recasting",
+                select: "",
+                state: false
+            },
+            {
+                problem: "6-year-old boys sit, play Legos, and build a castle together. Then, they take turns pretending to be a king. Which stage of play are they in?",
+                choices: "Parallel/Solitary/Onlooker/Associated/Cooperative",
+                answer: "Cooperative",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What ages are children suitable for interactive toys?",
+                choices: "Baby/Pre-school aged/School aged/Toddler/Adolescent",
+                answer: "Toddler",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "A 6-year-old girl sometimes rocks on her tricycle seat and rubs her genitalia. What is a proper management?",
+                choices: "Punishing her/Reassuring her parents/Telling her not to do it again./Using electroconvulsive therapy/Conveying her that genitalia is bad part of the body.",
+                answer: "Reassuring her parents",
+                select: "",
+                state: false
+            },
+            {
+                problem: "A 14-year-old girl was brought to the hospital because she had not been to school for 4 weeks after her father’s car accident. She had a stomachache every morning and did not want to leave her mother alone because she might have an accident like her father. What is likely her diagnosis?",
+                choices: "Normal child/School phobia/Selective mutism/Social anxiety disorder/Separation disorder",
+                answer: "Separation disorder",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "What is normal development?",
+                choices: "Pica/Mania/Dyslexia/Masturbation/Rumination disorder",
+                answer: "Masturbation",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which is CORRECT about aging situation around the world?",
+                choices: "Most caregivers are men./Elders can get lost from home./About one-third of elders cannot take care of their own./More than half of elders receive maltreatment at home./Numbers of long-term residences are enough to serve population",
+                answer: "Elders can get lost from home.",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which CORRECT regarding normal aging processes?",
+                choices: "Increased body fat/Decreased heart size/Decreased time to remember things./Increased production of bone matrix/Decreased hearing to high-pitch sounds",
+                answer: "Decreased hearing to high-pitch sounds",
+                select: "",
+                state: false
+            },
+            {
+                problem: "An old person has an affair and divorces with his wife, whom he has got married to for 20 years because his wife cannot have sex with him after she gets old. What is the major issue to cause the problem?",
+                choices: "Unfinished businesses/Unprepared retirement/Dealing with loss of loved one./Relationship with next generation/Adjustment to frail physical ability",
+                answer: "Adjustment to frail physical ability",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which personality traits can be changed during late life?",
+                choices: "Neuroticism/Extraversion/Agreeableness/Openness to experience/Conscientiousness",
+                answer: "Agreeableness",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "What is an example of environmental effects on phenotype?",
+                choices: "Eating habit/Emotion types/Endophenotype/Body stature/Body surface area",
+                answer: "Eating habit",
+                select: "",
+                state: false
+            },
+
+
+            {
+                problem: "According to sociocultural theory, what is required for zone of proximity in development to achieve a new knowledge?",
+                choices: "Emotion cues/Internal stimulus/External stimulus/Intrusive thoughts/Knowledgeable others",
+                answer: "Knowledgeable others",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which components in the belief system that influenced by thought?",
+                choices: "Cues/Trigger/Reward/Stimulus/Response",
+                answer: "Response",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which is considered as a disorder of gender identity?",
+                choices: "Bisexual/Gender dysphoria/Androgyny/Transgender/Androgen insensitivity syndrome",
+                answer: "Gender dysphoria",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Mr.A and Miss B have been childhood friends since kindergarten. They are very close as if they are siblings. They support each other even in their marriage of their partner. What is the kind of their relationship?",
+                choices: "Family relationship/Platonic relationship/Romantic relationship/Professional relationship/Therapeutic relationship",
+                answer: "Platonic relationship",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is TRUE about human sexual development?",
+                choices: "The default pattern for sexual development is female./Homosexuality is related to the suppression of Mullerian duct system./An embryo with XX chromosome originally has no Wolffian duct system./Wolffian duct system become female structure including ovaries, uterus, cervix./Embryo with XY chromosome, Wolffian duct system is not stimulated and Mullerian duct system is not inhibited. ",
+                answer: "The default pattern for sexual development is female.",
+                select: "",
+                state: false
+            },
+            {
+                problem: "A transgender woman states that she is attracted to male. Which of the following is her sexual orientation?",
+                choices: "Asexual/Gender fluidity/Homosexuality/Heterosexuality/Gender dysphoria",
+                answer: "Heterosexuality",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Miss A and Mr.B are lab-mates. They only spend time together during class. They get along well and never have arguments. According to Levinger’s relationship stage theory. What stage are they in?",
+                choices: "Acquaintances/Build-up/Continuation/Decline/Ending",
+                answer: "Acquaintances",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is the one of the competencies of 21st -century skills according to the World Economic Forum model?",
+                choices: "Curiosity/Creativity/ICT literacy/Leadership/Adaptability",
+                answer: "Creativity",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which skills will be the most need for future jobs?",
+                choices: "Manual skills/Physical skills/Emotional skills/Mathematic skills/Basic cognitive skills",
+                answer: "Emotional skills",
+                select: "",
+                state: false
+            },
+            {
+                problem: "The teacher intends to give constructive feedback for interesting question to the students. This development is included in which skills?",
+                choices: "Leaderships/Critical thinking/Communication/Collaboration/Creatively",
+                answer: "Critical thinking",
+                select: "",
+                state: false
+            },
+            {
+                problem: "“Global awareness” is included in which part of P21 framework?",
+                choices: "Curriculum/Assessment/Core subjects/Essential skill/21st century theme",
+                answer: "21st century theme",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is NOT the benefit of developing life-skill?",
+                choices: "Decreased anxiety/Prevention of psychiatric disorder/Promote of physical/Life skill strengthening",
+                answer: "Promote of physical",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is CORRECT of “The four stages of career development” according to super’s theory.",
+                choices: "Establishment > Exploration > Deceleration > Maintenance/Establishment > Exploration > Maintenance > Deceleration/Exploration > Establishment > Maintenance > Deceleration/Establishment > Exploration > Maintenance > Deceleration/Exploration > Establishment > Deceleration > Maintenance",
+                answer: "Exploration > Establishment > Maintenance > Deceleration",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which one is the CORRECT pairing of developmental change of work?",
+                choices: "Adolescent – Idealistic fantasies/College Choosing – Explore different career possibilities/Young adulthood - Emerging career/Mid-life – Choosing a major or specialization/Late adulthood – Stability and balancing",
+                answer: "Young adulthood - Emerging career",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which is more common in current work trend than in the past?",
+                choices: "Unskilled workers/Gender discrimination/Agricultural occupations/Technology displacement/Requirement in physical strength/Current work trend = Changing work world",
+                answer: "Technology displacement",
+                select: "",
+                state: false
+            },
+            {
+                problem: "What is CORRECT about job satisfaction?",
+                choices: "It is irrelevant to workplace stress/High achievers experience more satisfaction/More opportunities enhance job satisfaction/Job satisfaction is not related to job performance/Job satisfaction is not related to job performance",
+                answer: "More opportunities enhance job satisfaction",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which is TRUE about the prediction of work in changing world?",
+                choices: "Increase needs for unskilled workers./Require less education or training./Increase in agricultural and industry occupations./Increase needs for service occupations/Replace workers with technology",
+                answer: "Replace workers with technology",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "Which is the character of low self-esteem, compared with high self-esteem?",
+                choices: "Good relationship/Better at work/Better at study/Better at achieve goals/More uncomfortable to reveal self",
+                answer: "More uncomfortable to reveal self",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following can increase the child’s self-esteem?",
+                choices: "No rule in family/School achievements/Coping by avoiding the problems/Unavailable parents/School verbal bullying",
+                answer: "School achievements",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "Which of correct about stage of change in personality development?",
+                choices: "status quo > chaos > foreign element > practice > transformation > integration > status quo/status quo > chaos > transformation > foreign element > practice > integration > status quo/status quo > chaos > foreign element > transformation > practice > integration > status quo/status quo > foreign element > chaos > transformation > integration > practice > status quo/status quo > foreign element > chaos > practice > transformation > integration > status quo",
+                answer: "status quo > foreign element > chaos > practice > transformation > integration > status quo",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is the activity that promotes quality time for the family?",
+                choices: "Parents watch their children watch TV/Parents take their children to play at the mall/Parents give money to children for shopping/Parents tell a bedtime story for their children/Parents take their children to learn music lesson",
+                answer: "Parents tell a bedtime story for their children",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which is CORRECT about the current trends of marriage and childbearing?",
+                choices: "People give birth to fewer children/ ? has been declining/Men are spending a lesser amount of time of fathering/The age of woman of having birth has been declining/The percentage of persons who never marry has been lowering",
+                answer: "People give birth to fewer children",
+                select: "",
+                state: false
+            },
+            {
+                problem: "A 9-year-old boy has to cook for the whole family and look after his bed ridden grandmother while his mother goes to casino. Which is the dysfunctional area in this family?",
+                choices: "Role/Problem solving/Behavior control/Affective involvement/Affective responsiveness",
+                answer: "Role",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which one is the family of procreation of A?",
+                choices: "A and his siblings/A, his wife and his son/A, his mother and his father/A, his parents and his grandparents/A, his mother and his stepfather",
+                answer: "A, his wife and his son",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Mother forces her daughter to participate in the beauty contest against her will. She just wants to have a normal life as other people. Mother is very proud of her daughter’s beauty and wants everybody to adore her daughter. Which function of this family has worst problem?",
+                choices: "Uninvolved/Involvement devoid of feeling/Narcissistic involvement/Empathic involvement/Enmeshment.",
+                answer: "Narcissistic involvement",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "Which describes type A alcohol dependence?",
+                choices: "Late onset/Many childhoods risk factor/Severe alcohol intoxication/Associated with anxiety disorder/Strong family history of heavy alcohol drinking",
+                answer: "Late onset",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "Which of the following is the key that distinguishes depressive disorder from normal sadness?",
+                choices: "Resource/Functioning/Self esteem/Attachment/Intrapsychic conflict",
+                answer: "Functioning",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is the cognitive anxiety symptom?",
+                choices: "Fatigue/Trembling/Palpitation/Muscle tension/Poor concentration",
+                answer: "Poor concentration",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is CORRECT about anxiety?",
+                choices: "Anxiety is an abnormal response to danger/Every anxiety level interferes most kind of performance/Anxious mood usually couples with autonomic symptoms/Substance use is rarely a comorbidity of anxiety/Dopamine is a neurotransmitter that plays major role in anxiety",
+                answer: "Anxious mood usually couples with autonomic symptoms",
+                select: "",
+                state: false
+            },
+
+            {
+                problem: "Which one is the most common behavior problem in the elders?",
+                choices: "Getting lost/Apathy in morning/Memory lapse/Discouragement of physically illness/Repetitive behaviors",
+                answer: "Memory lapse",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which statement is correct about the aging situation in developed countries?",
+                choices: "Elders get lost frequently/Most caregivers are men/More than half of elders receive maltreatment/Almost all elders cannot take care of their own/Number of long-term residents are enough to serve population",
+                answer: "Elders get lost frequently",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which one of the following is CORRECT about the definition of stress?",
+                choices: "An unfulfilled satisfaction of individual’s physiological needs/An unpleasant circumstance that disrupts regular psychological functions of a person/A non-specific physiological response to unpleasant conditions/An overestimated importance of a real harmful stimuli/Either pleasant or unpleasant conditions which disrupts physiological or psychological functioning of a person",
+                answer: "Either pleasant or unpleasant conditions which disrupts physiological or psychological functioning of a person",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which one of the following is the most appropriate way to reduce stress-related emotional response?",
+                choices: "Venting with friend/Play baccarat online/Shopping latest fashion trends/Sharing problem on social media/Hanging out night life with close friends",
+                answer: "Venting with friend",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the determinant perceptions of psychological stressors of the theory stress coping of Lazarus & Folkman 1987?",
+                choices: "Cognitive appraisal/Instinctual awareness/Physical response/Learned adaptive response/Former emotional expression",
+                answer: "Cognitive appraisal",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which brain neurotransmitter is most likely associated with sympathetic adrenal medullary system (SAM)?",
+                choices: "Serotonin/Dopamine/Acetylcholine/Norepinephrine/Gamma-Aminobutyric acid",
+                answer: "Norepinephrine",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is the most appropriate coping strategy?",
+                choices: "Unrestrained display or feeling/Pray to a deity/Deliberate self-harm/Confrontation/Alcohol drinking",
+                answer: "Confrontation",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is most likely to be described as ‘grief’?",
+                choices: "Failing the final examination/Losing the mobile phone in the taxi/Go to school graduated ceremony/A distant never met cousin die from aging/Undergone right leg amputation form bone cancer",
+                answer: "Undergone right leg amputation form bone cancer",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which one is the original ‘stage of dying’ by Elizabeth Kubler?",
+                choices: "Anger, Bargaining, Denial, Depression, Acceptance/Bargaining, Denial, Anger, Depression, Acceptance/Depression, Anger, Bargaining, Depression, Acceptance/Denial, Anger, Bargaining, Depression, Acceptance/Denial, Bargaining, Acceptance, Depression, Acceptance",
+                answer: "Denial, Anger, Bargaining, Depression, Acceptance",
+                select: "",
+                state: false
+            },
+            {
+                problem: "The act of a patient in self-administer of lethal medication in order to die by their own decision with assistance is defined as ….",
+                choices: "Advance care/Active euthanasia/Passive euthanasia/Committed suicide/Assisted suicide",
+                answer: "Assisted suicide",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which of the following is most likely associated with John Bowlby’s process of bereavement?",
+                choices: "Learning theory/Attachment theory/Social learning theory/Object relation theory/Psychosocial development theory",
+                answer: "Attachment theory",
+                select: "",
+                state: false
+            },
+            {
+                problem: "Which following is correct about Elizabeth Kluber loss stage of dying?",
+                choices: "Everyone can go through this stage only once/Everyone will pass every single stage in the exact order/Some people might pass through a few stages in the exact order/Some people might skip some stage but finally achieve the stage of acceptance/Everyone has to go through stage of depression before the stage of acceptance",
+                answer: "Some people might skip some stage but finally achieve the stage of acceptance",
+                select: "",
+                state: false
+            }
+        ];
+        var random_question = questions.sort(() => Math.random() - 0.5);
+        var questionIndex = 0;
+        var current_question = {};
+        var score = 0;
+
+        function nextquestion() {
+            if (questionIndex < random_question.length - 1) {
+                questionIndex++;
+                console.log(questionIndex);
+                showquestion();
+                $("#feedback").text("");
+            }
+        }
+
+        $("#next-question").click(function () {
+            if (!random_question[questionIndex].state) {
+                alert("Please select an answer");
+                return;
+            }
+            else {
+                nextquestion();
+            }
+        });
+
+        function prevquestion() {
+            if (questionIndex > 0) {
+                questionIndex--;
+                console.log(questionIndex);
+                showquestion();
+                $("#feedback").text("");
+            }
+        }
+
+        $("#prev-question").click(function () {
+            prevquestion();
+        });
+
+        function showquestion() {
+            showsubmission(random_question);
+            console.log(random_question);
+            console.log(questionIndex);
+            current_question = random_question[questionIndex];
+            if (current_question.state === true) {
+                $("#question").text(current_question.problem);
+                $("#choices").empty();
+                var choices = current_question.choices.split("/");
+                for (var i = 0; i < choices.length; i++) {
+                    $("#choices").append("<button>" + choices[i] + "</button>");
+                }
+                $("#feedback").empty();
+                if (current_question.select === current_question.answer) {
+                    $("#feedback").addClass("correct");
+                    $("#feedback").text("Correct! : " + " " + current_question.answer);
+                } else {
+                    $("#feedback").text("Incorrect!, Your Ans: " + current_question.select);
+                    $("#feedback").addClass("incorrect");
+                }
+            }
+            else {
+                $("#question").text(current_question.problem);
+                var choices = current_question.choices.split("/");
+                $("#choices").empty();
+                for (var i = 0; i < choices.length; i++) {
+                    $("#choices").append("<button>" + choices[i] + "</button>");
+                }
+            }
+            $("#questionIndex").text(questionIndex + 1);
+        }
+
+        function submitquestion() {
+            var selected = $("button").filter(".selected").text();
+            random_question[questionIndex].select = selected;
+            random_question[questionIndex].state = true;
+            if (selected === current_question.answer) {
+                score++;
+                $("#score").text("Score: " + score + "/" + random_question.length);
+                $("#feedback").addClass("correct");
+                $("#feedback").text("Correct! : " + " " + current_question.answer);
+            } else {
+                $("#feedback").text("Incorrect!, Correct Ans: " + current_question.answer);
+                $("#feedback").addClass("incorrect");
+            }
+        }
+
+
+        $("#choices").on("click", "button", function () {
+            $(this).addClass("selected").siblings().removeClass("selected");
+        });
+
+        $("#submit-btn").click(function () {
+            submitquestion();
+        });
+
+        function showsubmission(random_question) {
+            var table = document.querySelector("table");
+            table.innerHTML = "";
+            for (var i = 0; i < random_question.length; i++) {
+                if (random_question[i].state === true) {
+                    var row = table.insertRow();
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    cell1.innerHTML = random_question[i].problem;
+                    cell2.innerHTML = random_question[i].answer;
+                    cell3.innerHTML = random_question[i].select;
+                }
+            }
+        }
+
+        showquestion();
+    });
+
+</script>
+
+<body>
+    <div class="row">
+        <div id="quiz-container" class="center-column">
+            <!-- show questionindex -->
+            <h1>Random Quiz ตอนนี้อยู่ข้อ <span id="questionIndex"></span> <span id="score"></span> </h1>
+            <p id="question"></p>
+            <div id="choices"></div>
+            <button id="submit-btn">Submit Answer</button>
+            <p id="feedback" onclick="wow"></p>
+            <div class="row">
+                <button id="prev-question">Previous Question</button>
+                <button id="next-question">Next Question</button>
+            </div>
+            <!-- หมายเหตุ -->
+            <!-- <div class="small">ref. mdkkudatabase</div> -->
+        </div>
+        <!-- create table to show the submission -->
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>Correct Answer</th>
+                <th>Your Answer</th>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>
